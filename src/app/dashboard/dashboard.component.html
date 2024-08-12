@@ -1,0 +1,16 @@
+<!-- src/app/dashboard/dashboard.component.html -->
+<div *ngIf="isLoading">
+    <p>Loading user data...</p>
+  </div>
+  
+  <div *ngIf="!isLoading && user">
+    <h1>Welcome, {{ user.username }}</h1>
+    <p><strong>Full Name:</strong> {{ user.firstname }} {{ user.lastname }}</p>
+    <p><strong>Country:</strong> {{ user.country }}</p>
+    <button (click)="logout()">Logout</button>
+  </div>
+  
+  <div *ngIf="!isLoading && !user">
+    <p>Unable to load user data. Please try again.</p>
+  </div>
+  

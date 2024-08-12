@@ -1,45 +1,67 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { LoginRequest } from './loginRequest';
-import  {  Observable, throwError, catchError, BehaviorSubject , tap} from 'rxjs';
-import { User } from './user';
+import { RegisterRequest } from './registerRequest';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
 
-  currentUserLoginOn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  currentUserData: BehaviorSubject<User> =new BehaviorSubject<User>({id:0, email:''});
+  private currentUserLoginOn = new BehaviorSubject<boolean>(this.isLoggedIn());
+  private currentUserData = new BehaviorSubject<string>(this.getToken());
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  login(credentials:LoginRequest):Observable<User>{
-    return this.http.get<User>('././assets/data.json').pipe(
-      tap( (userData: User) => {
-        this.currentUserData.next(userData);
+  login(credentials: LoginRequest): Observable<any> {
+    return this.http.post<any>(`${environment.urlHost}auth/login`, credentials).pipe(
+      tap(userData => {
+        sessionStorage.setItem('token', userData.token);
+        this.currentUserData.next(userData.token);
         this.currentUserLoginOn.next(true);
       }),
       catchError(this.handleError)
     );
   }
 
-  private handleError(error:HttpErrorResponse){
-    if(error.status===0){
-      console.error('Se ha producio un error ', error.error);
-    }
-    else{
-      console.error('Backend retornó el código de estado ', error.status, error.error);
-    }
-    return throwError(()=> new Error('Algo falló. Por favor intente nuevamente.'));
+  register(credentials: RegisterRequest): Observable<any> {
+    return this.http.post<any>(`${environment.urlHost}auth/register`, credentials).pipe(
+      tap(() => console.info('User registered successfully')),
+      catchError(this.handleError)
+    );
   }
 
-  get userData():Observable<User>{
-    return this.currentUserData.asObservable();
+  logout(): void {
+    sessionStorage.removeItem('token');
+    this.currentUserData.next('');
+    this.currentUserLoginOn.next(false);
   }
 
-  get userLoginOn(): Observable<boolean>{
+  private handleError(error: HttpErrorResponse) {
+    console.error('An error occurred:', error.error);
+    return throwError(() => new Error('Algo falló. Por favor intente nuevamente.'));
+  }
+
+  get userLoginOn(): Observable<boolean> {
     return this.currentUserLoginOn.asObservable();
   }
 
+  get userData(): Observable<string> {
+    return this.currentUserData.asObservable();
+  }
+
+  get userToken(): string {
+    return this.currentUserData.value;
+  }
+
+  private isLoggedIn(): boolean {
+    return !!sessionStorage.getItem('token');
+  }
+
+  private getToken(): string {
+    return sessionStorage.getItem('token') || '';
+  }
 }

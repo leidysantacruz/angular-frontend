@@ -1,5 +1,16 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
-<div class="fixed-bottom">
-    <app-footer></app-footer>
+<div class="app-container">
+  <div class="app-content">
+    <h1>{{ title }}</h1>
+    <div *ngIf="userLoginOn">
+      <p>Welcome, user!</p>
+      <button class="app-button logout-button" (click)="logout()">Cerrar sesión</button>
+    </div>
+    <div *ngIf="!userLoginOn">
+      <p>Por favor, inicie sesión para ver el contenido.</p>
+      <router-outlet></router-outlet>
+    </div>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  </div>
 </div>

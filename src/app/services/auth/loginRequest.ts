@@ -1,4 +1,6 @@
+// src/app/services/auth/loginRequest.ts
 export interface LoginRequest {
-    email:string,
-    password:string
-}
+    username: string;
+    password: string;
+  }
+  

@@ -1,12 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { RegisterComponent } from './auth/register/register.component';
+import { DashboardComponent } from './dashboard/dashboard.component'; 
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-  {path:'',redirectTo:'/inicio', pathMatch:'full'},
-  {path:'inicio',component:DashboardComponent},
-  {path:'iniciar-sesion',component:LoginComponent}
+  { path: '', redirectTo: '/iniciar-sesion', pathMatch: 'full' },
+  { path: 'iniciar-sesion', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [AuthGuard] // Protege esta ruta con AuthGuard
+  },
+  { path: '**', redirectTo: '/iniciar-sesion' } // Redirige a inicio de sesión si la ruta no coincide
 ];
 
 @NgModule({
